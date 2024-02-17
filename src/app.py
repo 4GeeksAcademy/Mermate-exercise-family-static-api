@@ -25,52 +25,41 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+
 @app.route('/members', methods=['GET'])
-def handle_hello():
-
-    # this is how you can use the Family datastructure by calling its methods
+def get_members():
     members = jackson_family.get_all_members()
-    response_body =  members
-    
+    return jsonify(members), 200
 
 
-    return jsonify(response_body), 200
+@app.route('/member/<int:id>', methods=['GET'])
+def get_member(id):
+    member = jackson_family.get_member(id)
+    return jsonify(member), 200
+
 
 @app.route('/member', methods=['POST'])
-def add_member():
-
-     # OK poder leer la info del body
-    body=request.get_json()
-    print(body)
-    print (body["first_name"])
-
-    member={
+def create_member():
+    body = request.get_json()
+    new_member = {
+        "id": body["id"],
         "first_name": body["first_name"],
-		"age": body["age"],
-		"lucky_numbers":  body["lucky_numbers"],
+        "age": body["age"],
+        "lucky_numbers": body["lucky_numbers"]
     }
-    new_member = jackson_family. add_member(member)
-    
-    # this is how you can use the Family datastructure by calling its methods
-   
-    # OK llamar el metodo add_member
-    # OK pasar un miembro al metodo add_member
-   
-    # tomar del body la info del member para pasarla
-
-   
-    # retornar info al API 
-    
-    members = jackson_family.get_all_members()
-    response_body =  {
-        "msg":"se agregó el member",
-        "member":new_member
+    jackson_family.add_member(new_member)
+    response_body = {
+        "msg": "New member successfully added",
+        "member":  new_member
     }
-
-    
-
-
     return jsonify(response_body), 200
+
+
+@app.route('/member/<int:id>', methods=['DELETE'])
+def delete_member(id):
+    member = jackson_family.delete_member(id)
+    return jsonify({"done" : True, "deleted_member": member}), 200
+   
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
